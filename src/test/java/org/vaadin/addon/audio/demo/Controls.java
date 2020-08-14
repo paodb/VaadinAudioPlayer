@@ -61,7 +61,11 @@ public class Controls extends PolymerTemplate<Controls.PlayerControlsModel> impl
         this.player = player;
         getElement().appendChild(player.getElement());
 
-        positionSlider.getSlider().addValueChangeListener(e -> player.setPosition(e.getValue().intValue()));
+        positionSlider.getSlider().addValueChangeListener(e -> {
+            if (e.isFromClient()) {
+                player.setPosition(e.getValue().intValue());
+            }
+        });
 
         back5Button.addClickListener(e -> player.skip(-5000));
         stopButton.addClickListener(e -> player.stop());
@@ -112,24 +116,24 @@ public class Controls extends PolymerTemplate<Controls.PlayerControlsModel> impl
             ui.access(() -> {
                 String text = "Stream status: ";
                 switch (newState) {
-                case COMPRESSING:
-                    text += "COMPRESSING";
-                    break;
-                case ENCODING:
-                    text += "ENCODING";
-                    break;
-                case IDLE:
-                    text += "IDLE";
-                    break;
-                case READING:
-                    text += "READING";
-                    break;
-                case SERIALIZING:
-                    text += "SERIALIZING";
-                    break;
-                default:
-                    text += "broken or something";
-                    break;
+                    case COMPRESSING:
+                        text += "COMPRESSING";
+                        break;
+                    case ENCODING:
+                        text += "ENCODING";
+                        break;
+                    case IDLE:
+                        text += "IDLE";
+                        break;
+                    case READING:
+                        text += "READING";
+                        break;
+                    case SERIALIZING:
+                        text += "SERIALIZING";
+                        break;
+                    default:
+                        text += "broken or something";
+                        break;
                 }
                 getModel().setStreamStatus(text);
             });
@@ -142,17 +146,17 @@ public class Controls extends PolymerTemplate<Controls.PlayerControlsModel> impl
                 ui.access(() -> {
                     String text = "Player status: ";
                     switch (new_state) {
-                    case PAUSED:
-                        text += "PAUSED";
-                        break;
-                    case PLAYING:
-                        text += "PLAYING";
-                        break;
-                    case STOPPED:
-                        text += "STOPPED";
-                        break;
-                    default:
-                        break;
+                        case PAUSED:
+                            text += "PAUSED";
+                            break;
+                        case PLAYING:
+                            text += "PLAYING";
+                            break;
+                        case STOPPED:
+                            text += "STOPPED";
+                            break;
+                        default:
+                            break;
                     }
                     getModel().setPlayerStatus(text);
                 });

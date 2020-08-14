@@ -6,10 +6,8 @@ import org.vaadin.addon.audio.shared.ChunkDescriptor;
 import org.vaadin.addon.audio.shared.PCMFormat;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 
 /**
  * Server-side datastream class
@@ -35,8 +33,6 @@ public class Stream {
 
     private List<StreamStateCallback> stateCallbacks = new ArrayList<>();
     private List<ChunkDescriptor> chunks = new ArrayList<ChunkDescriptor>();
-    private volatile Queue<ChunkRequest> requestQueue = new ArrayDeque<>();
-    private volatile Thread worker = null;
 
     private PCMFormat format = null;
     private ByteBuffer buffer = null;
@@ -88,11 +84,11 @@ public class Stream {
 
         int buffersize = pcmBuffer.capacity();
         int samples = sampleCount = buffersize / format.getSampleSize();
-        int samplesPerMillis = format.getSampleRate() / 1000;
-        duration = samples / samplesPerMillis;
+        double samplesPerMillis = (double) format.getSampleRate() / 1000;
+        duration = (int) ((double) samples / samplesPerMillis);
 
-        int chunkSampleSize = samplesPerMillis * chunkLength;
-        int chunkOverlapSampleSize = samplesPerMillis * chunkOverlapLength;
+        int chunkSampleSize = (int) (samplesPerMillis * chunkLength);
+        int chunkOverlapSampleSize = (int) (samplesPerMillis * chunkOverlapLength);
 
         // Create chunks
         {
@@ -101,21 +97,21 @@ public class Stream {
 
             do {
                 // Calculate read area
-                from_sample = (chunk * chunkLength) * samplesPerMillis;
+                from_sample = (int) ((chunk * chunkLength) * samplesPerMillis);
                 from_sample = Math.max(0, from_sample);
-                to_sample = ((chunk + 1) * chunkLength + chunkOverlapLength) * samplesPerMillis;
+                to_sample = (int) (((chunk + 1) * chunkLength + chunkOverlapLength) * samplesPerMillis);
                 to_sample = Math.min(samples, to_sample);
 
                 // Calculate lead in/out duration
-                int time_lead_in = Math.max((chunk * chunkLength) - (from_sample / samplesPerMillis), 0);
-                int time_lead_out = Math.max((to_sample / samplesPerMillis) - ((chunk + 1) * chunkLength), 0);
+                int time_lead_in = (int) Math.max((chunk * chunkLength) - (from_sample / samplesPerMillis), 0);
+                int time_lead_out = (int) Math.max((to_sample / samplesPerMillis) - ((chunk + 1) * chunkLength), 0);
 
                 // Calculate time
-                int time_start_offset = (from_sample / samplesPerMillis) + time_lead_in;
-                int time_end_offset = (to_sample / samplesPerMillis) - time_lead_out;
+                int time_start_offset = (int) ((from_sample / samplesPerMillis) + time_lead_in);
+                int time_end_offset = (int) ((to_sample / samplesPerMillis) - time_lead_out);
 
                 if (time_lead_out < chunkOverlapLength) {
-                    time_end_offset = (to_sample / samplesPerMillis);
+                    time_end_offset = (int) (to_sample / samplesPerMillis);
                     time_lead_out = 0;
                 }
 
@@ -220,45 +216,19 @@ public class Stream {
      * 
      * The logic runs in its own thread, and calls cb when complete.
      */
-    public void getChunkData(ChunkDescriptor chunk, Callback cb) {
-        requestQueue.add(new ChunkRequest(chunk, cb));
-        serviceChunkRequests();
-    }
+    public void getChunkData(ChunkDescriptor chunk, Callback callback) {
 
-    private void serviceChunkRequests() {
-        if (worker != null) {
-            return;
-        }
+        setStreamState(StreamState.READING);
+        int startOffset = chunk.getStartSampleOffset();
+        int endOffset = chunk.getEndSampleOffset();
+        int length = endOffset - startOffset;
 
-        ChunkRequest request = requestQueue.remove();
+        setStreamState(StreamState.ENCODING);
+        byte[] bytes = encoder.encode(startOffset, length);
 
-        final ChunkDescriptor chunk = request.chunk;
-        final Callback callback = request.callback;
+        callback.onComplete(bytes);
 
-        worker = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                setStreamState(StreamState.READING);
-                int startOffset = chunk.getStartSampleOffset();
-                int endOffset = chunk.getEndSampleOffset();
-                int length = endOffset - startOffset;
-
-                setStreamState(StreamState.ENCODING);
-                byte[] bytes = encoder.encode(startOffset, length);
-
-                callback.onComplete(bytes);
-
-                // We're done, kill the worker
-                worker = null;
-                if (requestQueue.isEmpty()) {
-                    setStreamState(StreamState.IDLE);
-                } else {
-                    setStreamState(StreamState.READING);
-                    serviceChunkRequests();
-                }
-            }
-        });
-        worker.run();
+        setStreamState(StreamState.IDLE);
     }
 
     /**
