@@ -1,7 +1,7 @@
 package org.vaadin.addon.audio.server;
 
 import com.vaadin.flow.component.*;
-import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
 import com.vaadin.flow.server.StreamRegistration;
 import com.vaadin.flow.server.StreamResource;
@@ -27,7 +27,7 @@ import java.util.List;
 // This is the server-side UI component that provides public API for AudioPlayer
 @SuppressWarnings("serial")
 @Tag("audio-player")
-@HtmlImport("audio-player.html")
+@JsModule("./audio-player.js")
 public class AudioPlayer extends PolymerTemplate<TemplateModel> {
 
     private Stream stream = null;

@@ -5,11 +5,11 @@
 
     <groupId>org.vaadin.addon.audio</groupId>
     <artifactId>AudioPlayer</artifactId>
-    <version>2.0.1</version>
+    <version>3.0.0</version>
     <name>AudioPlayer Add-on</name>
 
     <properties>
-        <vaadin.version>14.2.2</vaadin.version>
+        <vaadin.version>14.3.4</vaadin.version>
 
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -100,16 +100,6 @@
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-core</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>flow-server-compatibility-mode</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.webjars.bowergithub.polymerelements</groupId>
-            <artifactId>paper-slider</artifactId>
-            <version>2.0.9</version>
-            <scope>test</scope>
-        </dependency>
 
         <!-- Added to provide logging output as Flow uses -->
         <!-- the unbound SLF4J no-operation (NOP) logger implementation -->
@@ -183,17 +173,6 @@
                     <!-- Use test scope because the UI/demo classes are in
                             the test package. -->
                     <useTestScope>true</useTestScope>
-                    <systemProperties>
-                        <force>true</force>
-                        <systemProperty>
-                            <name>vaadin.compatibilityMode</name>
-                            <value>true</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <name>vaadin.bowerMode</name>
-                            <value>true</value>
-                        </systemProperty>
-                    </systemProperties>
                     <webAppConfig>
                         <!-- This is only needed to be able to unzip webjars
                             directly into src/test/webjar-debug and modify them for testing -->
@@ -215,24 +194,6 @@
             <id>directory</id>
             <build>
                 <plugins>
-                    <!--plugin>
-                      <groupId>com.vaadin</groupId>
-                      <artifactId>vaadin-maven-plugin</artifactId>
-                      <executions>
-                        <execution>
-                          <phase>generate-resources</phase>
-                          <goals>
-                            <goal>migrate-to-p3</goal>
-                          </goals>
-                        </execution>
-                      </executions>
-                      <configuration>
-                        <resources>${project.basedir}/src/main/resources/META-INF/resources/frontend/</resources>
-                        <frontendDirectory>${project.basedir}/src/main/resources/META-INF/resources/frontend/</frontendDirectory>
-                        <keepOriginal>true</keepOriginal>
-                        <annotationsRewrite>SKIP</annotationsRewrite>
-                      </configuration>
-                    </plugin-->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>

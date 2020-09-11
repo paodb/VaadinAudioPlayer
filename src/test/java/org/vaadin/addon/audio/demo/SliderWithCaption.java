@@ -2,6 +2,7 @@ package org.vaadin.addon.audio.demo;
 
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.polymertemplate.Id;
 import com.vaadin.flow.component.polymertemplate.PolymerTemplate;
@@ -14,7 +15,7 @@ import com.vaadin.flow.templatemodel.TemplateModel;
  * does not overwrite or otherwise change this file.
  */
 @Tag("slider-with-caption")
-@HtmlImport("slider-with-caption.html")
+@JsModule("./slider-with-caption.js")
 @Uses(PaperSlider.class)
 public class SliderWithCaption extends PolymerTemplate<SliderWithCaption.SliderWithCaptionModel> {
 

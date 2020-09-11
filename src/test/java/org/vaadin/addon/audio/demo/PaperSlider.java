@@ -4,9 +4,12 @@ import com.vaadin.flow.component.AbstractSinglePropertyField;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dependency.NpmPackage;
 
 @Tag("paper-slider")
-@HtmlImport("bower_components/paper-slider/paper-slider.html")
+@NpmPackage(value = "@polymer/paper-slider", version = "3.0.1")
+@JsModule("@polymer/paper-slider/paper-slider.js")
 public class PaperSlider extends AbstractSinglePropertyField<PaperSlider, Double> implements HasStyle {
 
     private static final double SCALE_MULTIPLIER = 1.0;
