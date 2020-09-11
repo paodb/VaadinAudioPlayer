@@ -6,6 +6,7 @@ import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.HtmlImport;
+import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.polymertemplate.Id;
@@ -23,6 +24,7 @@ import org.vaadin.addon.audio.server.state.StateChangeCallback;
  */
 @Tag("player-controls")
 @HtmlImport("player-controls.html")
+@JsModule("./player-controls.js")
 @Uses(SliderWithCaption.class)
 public class Controls extends PolymerTemplate<Controls.PlayerControlsModel> implements HasSize, HasComponents {
 

@@ -5,3 +5,7 @@ rebel.xml
 *.iml
 .DS_Store
 target/
+
+node
+package-lock.json
+package.json
