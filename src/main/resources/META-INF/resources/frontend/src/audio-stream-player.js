@@ -153,6 +153,8 @@ export const AudioStreamPlayer = (() => {
             if (this._chunkStartTime !== undefined) {
                 const elapsedTime = scheduleTime - this._chunkStartTime;
                 this._chunkPosition += elapsedTime * this._playbackSpeed;
+                // be sure that the _chunkPosition is always positive
+                this._chunkPosition = Math.max(0, this._chunkPosition);
                 this._chunkStartTime = undefined;
             }
             this._playerManager.prevPlayer.stop(scheduleTime / 1000);
@@ -299,7 +301,8 @@ export const AudioStreamPlayer = (() => {
                     (this._getScheduleTime() - this._chunkStartTime)
                     * this._playbackSpeed;
             }
-            return position;
+            // be sure that the current chunk position is always positive
+            return Math.max(0, position);
         }
 
         /**

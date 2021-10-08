@@ -5,11 +5,11 @@
 
     <groupId>org.vaadin.addon.audio</groupId>
     <artifactId>AudioPlayer</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
     <name>AudioPlayer Add-on</name>
 
     <properties>
-        <vaadin.version>14.3.4</vaadin.version>
+        <vaadin.version>14.7.1</vaadin.version>
 
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
@@ -281,6 +281,7 @@
                         <executions>
                             <execution>
                                 <goals>
+                                    <goal>prepare-frontend</goal>
                                     <goal>build-frontend</goal>
                                 </goals>
                             </execution>
