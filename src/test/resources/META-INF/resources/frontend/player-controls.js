@@ -43,6 +43,15 @@ class PlayerControls extends PolymerElement {
     <vaadin-button theme="primary" id="forward5Button">
       Forward 5 sec 
     </vaadin-button> 
+    <vaadin-button theme="primary" id="range1">
+      Set Range 2000-10000
+    </vaadin-button> 
+    <vaadin-button theme="primary" id="range2">
+      Set Range 3000-11000
+    </vaadin-button> 
+    <vaadin-button theme="primary" id="range3">
+      Clear Ranges
+    </vaadin-button> 
    </vaadin-horizontal-layout> 
    <vaadin-horizontal-layout theme="margin" style="width: 100%; height: 100%;"> 
     <slider-with-caption id="volumeSlider" style="width: 250px" caption="Volume" value="1" max="10" step="0.1"></slider-with-caption> 

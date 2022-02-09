@@ -39,6 +39,12 @@ public class Controls extends PolymerTemplate<Controls.PlayerControlsModel> impl
     private Button playButton;
     @Id("forward5Button")
     private Button forward5Button;
+    @Id("range1")
+    private Button range1Button;
+    @Id("range2")
+    private Button range2Button;
+    @Id("range3")
+    private Button range3Button;
     @Id("positionSlider")
     private SliderWithCaption positionSlider;
     @Id("volumeSlider")
@@ -89,6 +95,21 @@ public class Controls extends PolymerTemplate<Controls.PlayerControlsModel> impl
             }
         });
         forward5Button.addClickListener(e -> player.skip(5000));
+
+        range1Button.addClickListener(e-> {
+            player.setStartRange(2000);
+            player.setEndRange(10000);
+        });
+
+        range2Button.addClickListener(e-> {
+            player.setStartRange(3000);
+            player.setEndRange(11000);
+        });
+
+        range3Button.addClickListener(e-> {
+            player.setStartRange(0);
+            player.setEndRange(player.getDuration());
+        });
 
         volumeSlider.getSlider().addValueChangeListener(e -> {
             Notification.show("Volume: " + e.getValue());
