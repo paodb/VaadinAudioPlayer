@@ -19,10 +19,14 @@ export const AudioStreamPlayer = (() => {
          * @param {ClientStream} stream
          * @param {number} timePerChunk
          */
-        constructor(context, stream, timePerChunk) {
+        constructor(context, stream, timePerChunk, startRange, endRange, onEndOfRange) {
             this._context = context;
             this._stream = stream;
             this._timePerChunk = timePerChunk;
+
+            this._startRange = startRange;
+            this._endRange = endRange;
+            this._onEndOfRange = onEndOfRange;
 
             this._chunkOverlapTime = 0;
             this._numChunksPreload = 0;
@@ -99,7 +103,7 @@ export const AudioStreamPlayer = (() => {
                 }
             }
 
-            if (timeOffset < 0 || this._position + timeOffset >= this.duration) {
+            if (timeOffset < 0 || this._position + timeOffset >= /*this.duration*/this._endRange) {
                 // Start offset is outside the range
                 return;
             }
@@ -128,7 +132,6 @@ export const AudioStreamPlayer = (() => {
                 this._chunkPosition = timeOffset;
                 this.resume();
             }
-
         }
 
         /**
@@ -173,10 +176,10 @@ export const AudioStreamPlayer = (() => {
             this._startNextChunkScheduling();
 
             const nextChunkTime = Math.min(
-                this.duration,
+                /*this.duration*/this._endRange,
                 this._position + this._timePerChunk + this._chunkOverlapTime
             );
-            if (nextChunkTime < this.duration) {
+            if (nextChunkTime < /*this.duration*/this._endRange) {
                 this._fetchChunksForNextPlayer(nextChunkTime);
             }
         }
@@ -185,7 +188,7 @@ export const AudioStreamPlayer = (() => {
             this._playerManager.prevPlayer.stop();
             this._playerManager.currentPlayer.stop();
             this._stopNextChunkScheduling();
-            this._position = 0;
+            this._position = this._startRange;
             this._chunkPosition = 0;
             this._chunkStartTime = undefined;
             this._tryResume = undefined;
@@ -331,15 +334,44 @@ export const AudioStreamPlayer = (() => {
 
         _playNextChunk() {
             const nextChunkOffset = this._position + this._currentChunkDuration;
-            if (nextChunkOffset >= this.duration) {
+            if (nextChunkOffset >= this._endRange) {
                 // console.warn("to stop");
-                this.stop();
+                // this.stop();
+                switch (this._onEndOfRange) {
+                    case 0:
+                        this._position = this._endRange;
+                        this.stopOnRangeEndDefault();
+                        break;
+                    case 1:
+                        this._position = this._startRange;
+                        this.stopOnRangeEndDefault();
+                        break;
+                    case 2:
+                        this._position = this._startRange;
+                        this.play(0, true);
+                        break;            
+                    default:
+                        break;
+                }
             } else {
                 // console.warn("to play next chunk");
                 this._position += this._timePerChunk;
                 this._playerManager.moveToNextPlayer();
                 this.play(0, true);
             }
+        }
+
+        stopOnRangeEndDefault() {
+            this._playerManager.prevPlayer.stop();
+            this._playerManager.currentPlayer.stop();
+            this._stopNextChunkScheduling();
+            this._chunkPosition = 0;
+            this._chunkStartTime = undefined;
+            this._tryResume = undefined;
+            if (this.onStop) {
+                this.onStop();
+            }
+            // this._initFirstAudioChunk();
         }
 
         /**
@@ -404,7 +436,7 @@ export const AudioStreamPlayer = (() => {
 
         get position() {
             const position = this._position + this._currentChunkPosition;
-            return Math.min(position, this.duration);
+            return Math.min(position, /*this.duration*/this._endRange);
         }
 
         /**

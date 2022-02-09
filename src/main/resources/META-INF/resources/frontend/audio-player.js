@@ -50,7 +50,10 @@ class AudioPlayer extends PolymerElement {
                 value: 500
             },
             _reportPositionRepeatInterval: Number,
-            _lastPlaybackPosition: Number
+            _lastPlaybackPosition: Number,
+            startRange: Number,
+            endRange: Number,
+            onEndOfRange: Number
         };
     }
 
@@ -88,11 +91,11 @@ class AudioPlayer extends PolymerElement {
         // console.table(chunks);
 
         this._stream = new ClientStream(this._context, this);
-        this._player = new AudioStreamPlayer(this._context, this._stream, this.chunkTimeMillis);
+        this._player = new AudioStreamPlayer(this._context, this._stream, this.chunkTimeMillis, this.startRange, this.endRange, this.onEndOfRange);
         this._player.connect(this._context.destination);
         this._player.onStop = () => {
             this.$server.reportPlaybackStopped();
-            // this.$server.reportPlaybackPosition(this._player.position);
+            this.$server.reportPlaybackPosition(this._player.position);
             this._cancelPositionReportSchedule();
         };
     }
