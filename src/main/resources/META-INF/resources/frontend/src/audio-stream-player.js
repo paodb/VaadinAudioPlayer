@@ -96,7 +96,8 @@ export const AudioStreamPlayer = (() => {
                     return;
                 }
 
-                timeOffset = this.position % this._timePerChunk;
+                var startTime = this.position>=this._startRange?this.position:this._startRange;
+                timeOffset = startTime % this._timePerChunk;
             } else {
                 if (this._playerManager.currentPlayer.isScheduled) {
                     this._chunkStartTime = undefined;
@@ -188,7 +189,7 @@ export const AudioStreamPlayer = (() => {
             this._playerManager.prevPlayer.stop();
             this._playerManager.currentPlayer.stop();
             this._stopNextChunkScheduling();
-            this._position = this._startRange;
+            this._position = 0;
             this._chunkPosition = 0;
             this._chunkStartTime = undefined;
             this._tryResume = undefined;
@@ -343,12 +344,19 @@ export const AudioStreamPlayer = (() => {
                         this.stopOnRangeEndDefault();
                         break;
                     case 1:
-                        this._position = this._startRange;
+                        this._position = 0;
                         this.stopOnRangeEndDefault();
                         break;
                     case 2:
-                        this._position = this._startRange;
-                        this.play(0, true);
+                        this._position = 0;
+                        this._playerManager.prevPlayer.stop();
+                        this._playerManager.currentPlayer.stop();
+                        this._stopNextChunkScheduling();
+                        this._chunkPosition = 0;
+                        this._chunkStartTime = undefined;
+                        this._tryResume = undefined;
+                        this._initFirstAudioChunk();
+                        this.play();
                         break;            
                     default:
                         break;
@@ -371,7 +379,7 @@ export const AudioStreamPlayer = (() => {
             if (this.onStop) {
                 this.onStop();
             }
-            // this._initFirstAudioChunk();
+            this._initFirstAudioChunk();
         }
 
         /**
