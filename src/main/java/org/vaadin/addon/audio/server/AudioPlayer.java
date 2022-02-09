@@ -437,9 +437,6 @@ public class AudioPlayer extends PolymerTemplate<TemplateModel> {
       if(startRange >= 0 && startRange < this.getDuration()) {
         this.startRange = startRange;
         this.getElement().setProperty("startRange", startRange);
-
-        this.setPosition(startRange);
-
         Log.message(AudioPlayer.this, "setting start range to " + startRange);
       }     
     }
