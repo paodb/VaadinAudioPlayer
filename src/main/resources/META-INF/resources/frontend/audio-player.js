@@ -60,7 +60,7 @@ class AudioPlayer extends PolymerElement {
     static get observers() {
         return [
             '_updateStream(chunks, chunkTimeMillis)',
-            '_updateValues(startRange, endRange, onEndOfRange)'
+            '_updateRangeValues(startRange, endRange, onEndOfRange)'
         ];
     }
 
@@ -79,7 +79,7 @@ class AudioPlayer extends PolymerElement {
         }
     }
 
-    _updateValues(startRange, endRange, onEndOfRange) {
+    _updateRangeValues(startRange, endRange, onEndOfRange) {
         if (this._player) {
             this._player._startRange = startRange;
             this._player._endRange = endRange;
