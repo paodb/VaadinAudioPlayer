@@ -96,7 +96,7 @@ export const AudioStreamPlayer = (() => {
                     return;
                 }
 
-                var startTime = this.position>=this._startRange?this.position:this._startRange;
+                const startTime = this.position >= this._startRange ? this.position : this._startRange;
                 timeOffset = startTime % this._timePerChunk;
             } else {
                 if (this._playerManager.currentPlayer.isScheduled) {
@@ -341,21 +341,15 @@ export const AudioStreamPlayer = (() => {
                 switch (this._onEndOfRange) {
                     case 0:
                         this._position = this._endRange;
-                        this.stopOnRangeEndDefault();
+                        this._stopOnRangeEnd();
                         break;
                     case 1:
                         this._position = 0;
-                        this.stopOnRangeEndDefault();
+                        this._stopOnRangeEnd();
                         break;
                     case 2:
                         this._position = 0;
-                        this._playerManager.prevPlayer.stop();
-                        this._playerManager.currentPlayer.stop();
-                        this._stopNextChunkScheduling();
-                        this._chunkPosition = 0;
-                        this._chunkStartTime = undefined;
-                        this._tryResume = undefined;
-                        this._initFirstAudioChunk();
+                        this._loopOnRangeEnd();
                         this.play();
                         break;            
                     default:
@@ -369,16 +363,25 @@ export const AudioStreamPlayer = (() => {
             }
         }
 
-        stopOnRangeEndDefault() {
+        _stopOnRangeEndDefault() {
             this._playerManager.prevPlayer.stop();
             this._playerManager.currentPlayer.stop();
             this._stopNextChunkScheduling();
             this._chunkPosition = 0;
             this._chunkStartTime = undefined;
-            this._tryResume = undefined;
+            this._tryResume = undefined;           
+        }
+
+        _stopOnRangeEnd(){
+            this._stopOnRangeEndDefault();
             if (this.onStop) {
                 this.onStop();
             }
+            this._initFirstAudioChunk();
+        }
+
+        _loopOnRangeEnd(){
+            this._stopOnRangeEndDefault();
             this._initFirstAudioChunk();
         }
 
