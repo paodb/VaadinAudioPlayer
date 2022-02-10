@@ -5,6 +5,7 @@ import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.HtmlImport;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.dependency.Uses;
@@ -15,6 +16,7 @@ import com.vaadin.flow.templatemodel.TemplateModel;
 import org.vaadin.addon.audio.server.AudioPlayer;
 import org.vaadin.addon.audio.server.state.PlaybackState;
 import org.vaadin.addon.audio.server.state.StateChangeCallback;
+import org.vaadin.addon.audio.server.util.OnEndOfRange;
 
 /**
  * A Designer generated component for the player-controls template.
@@ -45,6 +47,8 @@ public class Controls extends PolymerTemplate<Controls.PlayerControlsModel> impl
     private Button range2Button;
     @Id("range3")
     private Button range3Button;
+    @Id("onEndRangeOptions")
+    private ComboBox<OnEndOfRange> onEndRangeOptions;
     @Id("positionSlider")
     private SliderWithCaption positionSlider;
     @Id("volumeSlider")
@@ -68,6 +72,15 @@ public class Controls extends PolymerTemplate<Controls.PlayerControlsModel> impl
         setWidthFull();
         this.player = player;
         getElement().appendChild(player.getElement());
+
+        onEndRangeOptions.setLabel("On End Range");
+        onEndRangeOptions.setWidth("250px");
+        onEndRangeOptions.setItems(OnEndOfRange.values());
+        onEndRangeOptions.setItemLabelGenerator(OnEndOfRange::name);
+        onEndRangeOptions.setValue(player.getOnEndOfRange());
+        onEndRangeOptions.addValueChangeListener(e -> {
+            player.setOnEndOfRange(e.getValue());
+        });
 
         positionSlider.getSlider().addValueChangeListener(e -> {
             if (e.isFromClient()) {

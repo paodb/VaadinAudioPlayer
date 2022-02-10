@@ -52,6 +52,7 @@ class PlayerControls extends PolymerElement {
     <vaadin-button theme="primary" id="range3">
       Clear Ranges
     </vaadin-button> 
+    <vaadin-combo-box id = "onEndRangeOptions"></vaadin-combo-box>
    </vaadin-horizontal-layout> 
    <vaadin-horizontal-layout theme="margin" style="width: 100%; height: 100%;"> 
     <slider-with-caption id="volumeSlider" style="width: 250px" caption="Volume" value="1" max="10" step="0.1"></slider-with-caption> 
