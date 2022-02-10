@@ -39,6 +39,19 @@ export const BufferPlayer = (() => {
             this._sourceNode.start(when, offsetMillis / 1000);
         }
 
+        playByDuration(
+            offsetMillis,
+            when = this._context.currentTime +
+            Schedule.AUDIO_SCHEDULE_DELAY_MS / 1000,
+            duration
+        ) {
+            if (this.isScheduled) {
+                this.stop(when);
+            }
+            this._startTime = when;
+            this._sourceNode.start(when, offsetMillis / 1000, duration);
+        }
+
         stop(
             when = this._context.currentTime
             + Schedule.AUDIO_SCHEDULE_DELAY_MS / 1000

@@ -173,7 +173,13 @@ export const AudioStreamPlayer = (() => {
             if (this._chunkStartTime === undefined) {
                 this._chunkStartTime = this._getScheduleTime();
             }
-            this._playerManager.currentPlayer.play(this._chunkPosition, this._chunkStartTime / 1000);
+            const nextChunkLength = this._position + this._timePerChunk;
+            if(nextChunkLength > this._endRange){
+                const lastChunkDuration = this._endRange - this._position;
+                this._playerManager.currentPlayer.playByDuration(this._chunkPosition, this._chunkStartTime / 1000, lastChunkDuration / 1000);
+            } else {
+                this._playerManager.currentPlayer.play(this._chunkPosition, this._chunkStartTime / 1000);
+            }
             this._startNextChunkScheduling();
 
             const nextChunkTime = Math.min(
