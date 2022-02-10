@@ -424,6 +424,9 @@ public class AudioPlayer extends PolymerTemplate<TemplateModel> {
         return StringFormatter.msToPlayerTimeStamp(getDuration());
     }
     
+    /**
+     * Gets the start of the audio play range.
+     */
     public int getStartRange() {
       return startRange;
     }
@@ -441,6 +444,9 @@ public class AudioPlayer extends PolymerTemplate<TemplateModel> {
       }     
     }
 
+    /**
+     * Gets the end of the audio player range.
+     */
     public int getEndRange() {
       return endRange;
     }
@@ -458,11 +464,20 @@ public class AudioPlayer extends PolymerTemplate<TemplateModel> {
       } 
     }    
     
-
+    /**
+     * Gets the enum representing the action that should happen when playback
+     * reaches the end of the range.
+     */
     public OnEndOfRange getOnEndOfRange() {
       return onEndOfRange;
     }
 
+    /**
+     * Sets the enum value that represents the action to be applied when playback 
+     * reaches the end of the range.
+     * 
+     * @param onEndOfRange 
+     */
     public void setOnEndOfRange(OnEndOfRange onEndOfRange) {
       this.onEndOfRange = onEndOfRange;
       this.getElement().setProperty("onEndOfRange", onEndOfRange.getAction());
