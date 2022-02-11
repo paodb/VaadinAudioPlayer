@@ -179,8 +179,8 @@ export const AudioStreamPlayer = (() => {
                 this._playerManager.currentPlayer.playByDuration(this._chunkPosition, this._chunkStartTime / 1000, lastChunkDuration / 1000);
             } else {
                 this._playerManager.currentPlayer.play(this._chunkPosition, this._chunkStartTime / 1000);
-            }
-            this._startNextChunkScheduling();
+                this._startNextChunkScheduling();
+            }            
 
             const nextChunkTime = Math.min(
                 /*this.duration*/this._endRange,
@@ -320,7 +320,13 @@ export const AudioStreamPlayer = (() => {
          */
         get _currentChunkDuration() {
             if (this._playerManager.currentPlayer.buffer) {
-                return this._playerManager.currentPlayer.buffer.duration * 1000;
+                const nextChunkLength = this._position + this._timePerChunk;
+                if(nextChunkLength > this._endRange){
+                    const lastChunkDuration = this._endRange - this._position;  
+                    return Math.min(lastChunkDuration, this._playerManager.currentPlayer.buffer.duration * 1000);
+                } else {    
+                    return this._playerManager.currentPlayer.buffer.duration * 1000;
+                }
             } else {
                 // No chunk yet, assume infinite duration
                 return Infinity;
