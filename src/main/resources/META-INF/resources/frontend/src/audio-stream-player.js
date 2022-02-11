@@ -106,7 +106,24 @@ export const AudioStreamPlayer = (() => {
 
             if (timeOffset < 0 || this._position + timeOffset >= /*this.duration*/this._endRange) {
                 // Start offset is outside the range
-                return;
+                // return;
+                switch (this._onEndOfRange) {
+                    case 0:
+                        this._position = this._endRange;
+                        this._stopOnRangeEnd();
+                        return;
+                    case 1:
+                        this._position = 0;
+                        this._stopOnRangeEnd();
+                        return;
+                    case 2:
+                        this._position = 0;
+                        this._loopOnRangeEnd();
+                        this.play();
+                        return;            
+                    default:
+                        return;
+                };
             }
 
             if (isChunkTransition && this._chunkStartTime !== undefined) {
