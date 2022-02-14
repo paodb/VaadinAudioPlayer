@@ -104,9 +104,8 @@ export const AudioStreamPlayer = (() => {
                 }
             }
 
-            if (timeOffset < 0 || this._position + timeOffset >= /*this.duration*/this._endRange) {
+            if (timeOffset < 0 || this._position + timeOffset >= this._endRange) {
                 // Start offset is outside the range
-                // return;
                 switch (this._onEndOfRange) {
                     case 0:
                         this._position = this._endRange;
@@ -200,10 +199,10 @@ export const AudioStreamPlayer = (() => {
             }            
 
             const nextChunkTime = Math.min(
-                /*this.duration*/this._endRange,
+                this._endRange,
                 this._position + this._timePerChunk + this._chunkOverlapTime
             );
-            if (nextChunkTime < /*this.duration*/this._endRange) {
+            if (nextChunkTime < this._endRange) {
                 this._fetchChunksForNextPlayer(nextChunkTime);
             }
         }
@@ -366,7 +365,6 @@ export const AudioStreamPlayer = (() => {
             const nextChunkOffset = this._position + this._currentChunkDuration;
             if (nextChunkOffset >= this._endRange) {
                 // console.warn("to stop");
-                // this.stop();
                 switch (this._onEndOfRange) {
                     case 0:
                         this._position = this._endRange;
@@ -476,7 +474,7 @@ export const AudioStreamPlayer = (() => {
 
         get position() {
             const position = this._position + this._currentChunkPosition;
-            return Math.min(position, /*this.duration*/this._endRange);
+            return Math.min(position, this._endRange);
         }
 
         /**
