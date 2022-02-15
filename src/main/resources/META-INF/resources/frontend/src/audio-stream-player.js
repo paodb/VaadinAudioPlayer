@@ -19,10 +19,14 @@ export const AudioStreamPlayer = (() => {
          * @param {ClientStream} stream
          * @param {number} timePerChunk
          */
-        constructor(context, stream, timePerChunk) {
+        constructor(context, stream, timePerChunk, startRange, endRange, onEndOfRange) {
             this._context = context;
             this._stream = stream;
             this._timePerChunk = timePerChunk;
+
+            this._startRange = startRange;
+            this._endRange = endRange;
+            this._onEndOfRange = onEndOfRange;
 
             this._chunkOverlapTime = 0;
             this._numChunksPreload = 0;
@@ -92,16 +96,33 @@ export const AudioStreamPlayer = (() => {
                     return;
                 }
 
-                timeOffset = this.position % this._timePerChunk;
+                const startTime = this.position >= this._startRange ? this.position : this._startRange;
+                timeOffset = startTime % this._timePerChunk;
             } else {
                 if (this._playerManager.currentPlayer.isScheduled) {
                     this._chunkStartTime = undefined;
                 }
             }
 
-            if (timeOffset < 0 || this._position + timeOffset >= this.duration) {
+            if (timeOffset < 0 || this._position + timeOffset >= this._endRange) {
                 // Start offset is outside the range
-                return;
+                switch (this._onEndOfRange) {
+                    case 0:
+                        this._position = this._endRange;
+                        this._stopOnRangeEnd();
+                        return;
+                    case 1:
+                        this._position = 0;
+                        this._stopOnRangeEnd();
+                        return;
+                    case 2:
+                        this._position = 0;
+                        this._loopOnRangeEnd();
+                        this.play();
+                        return;            
+                    default:
+                        return;
+                };
             }
 
             if (isChunkTransition && this._chunkStartTime !== undefined) {
@@ -128,7 +149,6 @@ export const AudioStreamPlayer = (() => {
                 this._chunkPosition = timeOffset;
                 this.resume();
             }
-
         }
 
         /**
@@ -169,14 +189,20 @@ export const AudioStreamPlayer = (() => {
             if (this._chunkStartTime === undefined) {
                 this._chunkStartTime = this._getScheduleTime();
             }
-            this._playerManager.currentPlayer.play(this._chunkPosition, this._chunkStartTime / 1000);
-            this._startNextChunkScheduling();
+            const nextChunkLength = this._position + this._timePerChunk;
+            if(nextChunkLength > this._endRange){
+                const lastChunkDuration = this._endRange - this._position;
+                this._playerManager.currentPlayer.playByDuration(this._chunkPosition, this._chunkStartTime / 1000, lastChunkDuration / 1000);
+            } else {
+                this._playerManager.currentPlayer.play(this._chunkPosition, this._chunkStartTime / 1000);
+                this._startNextChunkScheduling();
+            }            
 
             const nextChunkTime = Math.min(
-                this.duration,
+                this._endRange,
                 this._position + this._timePerChunk + this._chunkOverlapTime
             );
-            if (nextChunkTime < this.duration) {
+            if (nextChunkTime < this._endRange) {
                 this._fetchChunksForNextPlayer(nextChunkTime);
             }
         }
@@ -310,7 +336,13 @@ export const AudioStreamPlayer = (() => {
          */
         get _currentChunkDuration() {
             if (this._playerManager.currentPlayer.buffer) {
-                return this._playerManager.currentPlayer.buffer.duration * 1000;
+                const nextChunkLength = this._position + this._timePerChunk;
+                if(nextChunkLength > this._endRange){
+                    const lastChunkDuration = this._endRange - this._position;  
+                    return Math.min(lastChunkDuration, this._playerManager.currentPlayer.buffer.duration * 1000);
+                } else {    
+                    return this._playerManager.currentPlayer.buffer.duration * 1000;
+                }
             } else {
                 // No chunk yet, assume infinite duration
                 return Infinity;
@@ -331,15 +363,53 @@ export const AudioStreamPlayer = (() => {
 
         _playNextChunk() {
             const nextChunkOffset = this._position + this._currentChunkDuration;
-            if (nextChunkOffset >= this.duration) {
+            if (nextChunkOffset >= this._endRange) {
                 // console.warn("to stop");
-                this.stop();
+                switch (this._onEndOfRange) {
+                    case 0:
+                        this._position = this._endRange;
+                        this._stopOnRangeEnd();
+                        break;
+                    case 1:
+                        this._position = 0;
+                        this._stopOnRangeEnd();
+                        break;
+                    case 2:
+                        this._position = 0;
+                        this._loopOnRangeEnd();
+                        this.play();
+                        break;            
+                    default:
+                        break;
+                }
             } else {
                 // console.warn("to play next chunk");
                 this._position += this._timePerChunk;
                 this._playerManager.moveToNextPlayer();
                 this.play(0, true);
             }
+        }
+
+        _stopOnRangeEndDefault() {
+            this._playerManager.prevPlayer.stop();
+            this._playerManager.currentPlayer.stop();
+            this._stopNextChunkScheduling();
+            this._chunkPosition = 0;
+            this._chunkStartTime = undefined;
+            this._tryResume = undefined;           
+        }
+
+        _stopOnRangeEnd(){
+            this._stopOnRangeEndDefault();
+            if (this.onStop) {
+                this.onStop();
+            }
+            this._initFirstAudioChunk();
+        }
+
+        _loopOnRangeEnd(){
+            this._stopOnRangeEndDefault();
+            this._initFirstAudioChunk();
         }
 
         /**
@@ -404,7 +474,7 @@ export const AudioStreamPlayer = (() => {
 
         get position() {
             const position = this._position + this._currentChunkPosition;
-            return Math.min(position, this.duration);
+            return Math.min(position, this._endRange);
         }
 
         /**

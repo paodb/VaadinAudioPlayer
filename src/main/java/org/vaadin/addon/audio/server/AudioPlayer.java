@@ -14,6 +14,7 @@ import elemental.json.JsonObject;
 import org.vaadin.addon.audio.server.state.PlaybackState;
 import org.vaadin.addon.audio.server.state.StateChangeCallback;
 import org.vaadin.addon.audio.server.state.VolumeChangeCallback;
+import org.vaadin.addon.audio.server.util.OnEndOfRange;
 import org.vaadin.addon.audio.server.util.StringFormatter;
 import org.vaadin.addon.audio.shared.ChunkDescriptor;
 import org.vaadin.addon.audio.shared.SharedEffect;
@@ -51,6 +52,12 @@ public class AudioPlayer extends PolymerTemplate<TemplateModel> {
 
     public final List<SharedEffect> effects = new ArrayList<SharedEffect>();
 
+    public int startRange;
+
+    public int endRange;
+        
+    public OnEndOfRange onEndOfRange;    
+
     /**
      * Create new AudioPlayer
      *
@@ -79,6 +86,11 @@ public class AudioPlayer extends PolymerTemplate<TemplateModel> {
         setStream(stream);
 
         getElement().setProperty("reportPositionRepeatTime", reportPositionRepeatTime);
+        
+        // Set default values for range
+        setStartRange(0);
+        setEndRange(this.duration);
+        setOnEndOfRange(OnEndOfRange.STOP_POSITION_END);       
     }
 
     @ClientCallable
@@ -410,6 +422,66 @@ public class AudioPlayer extends PolymerTemplate<TemplateModel> {
      */
     public String getDurationString() {
         return StringFormatter.msToPlayerTimeStamp(getDuration());
+    }
+    
+    /**
+     * Gets the start of the audio play range.
+     */
+    public int getStartRange() {
+      return startRange;
+    }
+
+    /**
+     * Sets the start of the audio play range.
+     * 
+     * @param startRange
+     */
+    public void setStartRange(int startRange) {
+      if(startRange >= 0 && startRange < this.getDuration()) {
+        this.startRange = startRange;
+        this.getElement().setProperty("startRange", startRange);
+        Log.message(AudioPlayer.this, "setting start range to " + startRange);
+      }     
+    }
+
+    /**
+     * Gets the end of the audio player range.
+     */
+    public int getEndRange() {
+      return endRange;
+    }
+
+    /**
+     * Sets the end of the audio play range.
+     * 
+     * @param endRange
+     */
+    public void setEndRange(int endRange) {
+      if(endRange > 0 && endRange <= this.getDuration()) {
+        this.endRange = endRange;
+        this.getElement().setProperty("endRange", endRange);
+        Log.message(AudioPlayer.this, "setting end range to " + endRange);
+      } 
+    }    
+    
+    /**
+     * Gets the enum representing the action that should happen when playback
+     * reaches the end of the range.
+     */
+    public OnEndOfRange getOnEndOfRange() {
+      return onEndOfRange;
+    }
+
+    /**
+     * Sets the enum value that represents the action to be applied when playback 
+     * reaches the end of the range.
+     * 
+     * @param onEndOfRange 
+     */
+    public void setOnEndOfRange(OnEndOfRange onEndOfRange) {
+      this.onEndOfRange = onEndOfRange;
+      this.getElement().setProperty("onEndOfRange", onEndOfRange.getAction());
+      Log.message(AudioPlayer.this, "setting action to do when reaching end of range to " + onEndOfRange);
     }
 
     // =========================================================================

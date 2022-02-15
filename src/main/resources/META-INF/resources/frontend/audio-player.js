@@ -50,13 +50,17 @@ class AudioPlayer extends PolymerElement {
                 value: 500
             },
             _reportPositionRepeatInterval: Number,
-            _lastPlaybackPosition: Number
+            _lastPlaybackPosition: Number,
+            startRange: Number,
+            endRange: Number,
+            onEndOfRange: Number
         };
     }
 
     static get observers() {
         return [
-            '_updateStream(chunks, chunkTimeMillis)'
+            '_updateStream(chunks, chunkTimeMillis)',
+            '_updateRangeValues(startRange, endRange, onEndOfRange)'
         ];
     }
 
@@ -75,6 +79,14 @@ class AudioPlayer extends PolymerElement {
         }
     }
 
+    _updateRangeValues(startRange, endRange, onEndOfRange) {
+        if (this._player) {
+            this._player._startRange = startRange;
+            this._player._endRange = endRange;
+            this._player._onEndOfRange = onEndOfRange;
+        }
+    }
+
     _updateStream(chunks, chunkTimeMillis) {
         if (chunks === undefined || chunkTimeMillis === undefined) {
             return;
@@ -88,11 +100,11 @@ class AudioPlayer extends PolymerElement {
         // console.table(chunks);
 
         this._stream = new ClientStream(this._context, this);
-        this._player = new AudioStreamPlayer(this._context, this._stream, this.chunkTimeMillis);
+        this._player = new AudioStreamPlayer(this._context, this._stream, chunkTimeMillis, this.startRange, this.endRange, this.onEndOfRange);
         this._player.connect(this._context.destination);
         this._player.onStop = () => {
             this.$server.reportPlaybackStopped();
-            // this.$server.reportPlaybackPosition(this._player.position);
+            this.$server.reportPlaybackPosition(this._player.position);
             this._cancelPositionReportSchedule();
         };
     }
