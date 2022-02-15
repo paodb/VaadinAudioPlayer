@@ -5,7 +5,7 @@
 
     <groupId>org.vaadin.addon.audio</groupId>
     <artifactId>AudioPlayer</artifactId>
-    <version>3.0.2</version>
+    <version>3.1.0</version>
     <name>AudioPlayer Add-on</name>
 
     <properties>
@@ -156,6 +156,9 @@
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
                 <version>${vaadin.version}</version>
+                <configuration>
+                	<pnpmEnable>true</pnpmEnable>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
@@ -197,7 +200,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-assembly-plugin</artifactId>
-                        <version>3.1.0</version>
+                        <version>3.3.0</version>
                         <configuration>
                             <appendAssemblyId>false</appendAssemblyId>
                             <descriptors>
